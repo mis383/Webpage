@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Projects Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ── RESET & TOKENS ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+  ══════════════════════════════════════════════════════════ */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #FFF3EC 0%, #F4F6FA 50%, #EEF1F8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  #login-screen.hide {
+    opacity: 0; transform: scale(1.03); pointer-events: none;
+  }
+
+  .login-card {
+    background: #fff;
+    border: 1px solid #E2E6EF;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.10), 0 4px 16px rgba(232,78,0,.08);
+    padding: 48px 44px 40px;
+    width: 100%; max-width: 420px;
+    animation: cardIn .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(28px) scale(.97); }
+    to   { opacity:1; transform: none; }
+  }
+
+  .login-logo {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .login-logo-mark {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #E84E00, #F97316);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(232,78,0,.30);
+  }
+  .login-logo-mark svg { width: 26px; height: 26px; fill: #fff; }
+  .login-logo-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: #1A1D2E; line-height: 1;
+  }
+  .login-logo-text p {
+    font-size: 11px; color: #7B849E; margin-top: 3px;
+  }
+
+  .login-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    color: #1A1D2E; margin-bottom: 6px;
+  }
+  .login-sub {
+    font-size: 13px; color: #7B849E; margin-bottom: 30px;
+  }
+
+  .login-field {
+    margin-bottom: 18px;
+  }
+  .login-field label {
+    display: block;
+    font-size: 11.5px; font-weight: 600;
+    letter-spacing: .4px; text-transform: uppercase;
+    color: #4A5068; margin-bottom: 7px;
+  }
+  .login-input-wrap {
+    position: relative;
+  }
+  .login-input-wrap svg {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: #B0B8CC; pointer-events: none;
+    transition: color .2s;
+  }
+  .login-field input {
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    border: 1.5px solid #E2E6EF;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: #1A1D2E;
+    background: #FAFBFD;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  .login-field input:focus {
+    border-color: #E84E00;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(232,78,0,.10);
+  }
+  .login-field input:focus + svg,
+  .login-input-wrap:focus-within svg { color: #E84E00; }
+
+  /* eye toggle */
+  .eye-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: #B0B8CC; transition: color .2s;
+  }
+  .eye-btn:hover { color: #E84E00; }
+  .eye-btn svg { width: 16px; height: 16px; display: block; }
+
+  .login-error {
+    display: none;
+    background: #FEF2F2; border: 1px solid #FECACA;
+    border-radius: 8px; padding: 10px 14px;
+    color: #DC2626; font-size: 12.5px;
+    margin-bottom: 18px;
+    animation: shake .35s ease;
+  }
+  .login-error.show { display: flex; align-items: center; gap: 8px; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60%  { transform: translateX(-6px); }
+    40%,80%  { transform: translateX(6px); }
+  }
+
+  .login-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, #E84E00, #F97316);
+    color: #fff; border: none; border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(232,78,0,.30);
+    transition: transform .15s, box-shadow .15s, filter .15s;
+    margin-top: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .login-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,78,0,.35); }
+  .login-btn:active { transform: translateY(0); }
+  .login-btn:disabled { filter: grayscale(.5) opacity(.7); pointer-events: none; }
+  .login-btn .btn-spinner {
+    display: none; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+  }
+  .login-btn.loading .btn-spinner { display: block; }
+  .login-btn.loading .btn-label   { display: none; }
+
+  .login-footer {
+    margin-top: 24px; text-align: center;
+    font-size: 11px; color: #B0B8CC;
+  }
+
+  /* logged-in user chip in dashboard header */
+  .user-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: #FFF3EC; border: 1px solid #FDDCCC;
+    border-radius: 20px; padding: 4px 12px 4px 8px;
+    font-size: 12px; color: #E84E00; font-weight: 500;
+    cursor: default;
+  }
+  .user-chip svg { width: 14px; height: 14px; }
+
+  #logout-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: none; border: 1.5px solid #E2E6EF;
+    border-radius: 8px; padding: 6px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; color: #7B849E;
+    cursor: pointer; transition: all .2s;
+  }
+  #logout-btn:hover { border-color: #E84E00; color: #E84E00; background: #FFF3EC; }
+  #logout-btn svg { width: 13px; height: 13px; }
+
+  :root {
+    --orange:       #E84E00;
+    --orange-light: #F05A00;
+    --orange-glow:  #F05A0018;
+    --orange-pale:  #FFF3EC;
+    --dark:         #F4F6FA;
+    --surface:      #FFFFFF;
+    --surface2:     #F8F9FC;
+    --border:       #E2E6EF;
+    --text:         #1A1D2E;
+    --text-muted:   #7B849E;
+    --row-even:     #FFFFFF;
+    --row-odd:      #F8F9FC;
+    --row-hover:    #FFF3EC;
+    --accent-green: #16A34A;
+    --accent-red:   #DC2626;
+    --radius:       10px;
+    --shadow:       0 4px 24px rgba(0,0,0,.08);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+
+  .logo-mark {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 18px var(--orange-glow);
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 24px; height: 24px; fill: #fff; }
+
+  .brand h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px; font-weight: 800;
+    letter-spacing: -.3px;
+    color: var(--text);
+  }
+  .brand p {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .badge {
+    background: var(--orange-glow);
+    border: 1px solid var(--orange);
+    color: var(--orange-light);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  #refresh-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--orange);
+    color: #fff;
+    border: none; cursor: pointer;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    transition: background .2s, transform .15s;
+  }
+  #refresh-btn:hover  { background: var(--orange-light); transform: translateY(-1px); }
+  #refresh-btn:active { transform: translateY(0); }
+  #refresh-btn svg { width: 14px; height: 14px; }
+
+  /* ── TOOLBAR ─────────────────────────────────────────────── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative; flex: 1; min-width: 220px; max-width: 380px;
+  }
+  .search-wrap svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; color: var(--text-muted); pointer-events: none;
+  }
+  #search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 8px 12px 8px 34px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  #search-input:focus { border-color: var(--orange); }
+
+  .col-filter {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .col-filter label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  #col-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 7px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    max-width: 200px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+
+  .stats {
+    margin-left: auto;
+    display: flex; gap: 16px;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text-muted);
+  }
+  .stat-pill strong { color: var(--text); font-size: 13px; }
+
+  /* ── TABLE WRAPPER ───────────────────────────────────────── */
+  .table-wrapper {
+    flex: 1 1 0;
+    overflow: auto;
+    margin: 16px 20px 60px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    min-height: 0; /* critical for flex overflow to work */
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1200px;
+    table-layout: auto;
+  }
+
+  /* ── THEAD ───────────────────────────────────────────────── */
+  thead tr {
+    background: linear-gradient(135deg, #EEF1F8 0%, var(--surface2) 100%);
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  th {
+    padding: 13px 14px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: color .2s, background .2s;
+    position: relative;
+  }
+  th:hover { color: var(--orange-light); background: rgba(240,90,0,.07); }
+  th.sorted-asc  { color: var(--orange-light); }
+  th.sorted-desc { color: var(--orange-light); }
+  th .sort-icon { display: inline-block; margin-left: 5px; opacity: .45; font-size: 9px; }
+  th.sorted-asc  .sort-icon,
+  th.sorted-desc .sort-icon { opacity: 1; }
+
+  /* Col #1 sticky */
+  th:first-child, td:first-child {
+    position: sticky; left: 0; z-index: 5;
+  }
+  th:first-child { z-index: 15; background: #EEF1F8; }
+
+  /* ── TBODY ───────────────────────────────────────────────── */
+  tbody tr:nth-child(even) td { background: var(--row-even); }
+  tbody tr:nth-child(odd)  td { background: var(--row-odd); }
+  tbody tr:nth-child(even) td:first-child { background: #FFFFFF; }
+  tbody tr:nth-child(odd)  td:first-child { background: #F8F9FC; }
+
+  tbody tr:hover td { background: var(--row-hover) !important; }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #22253200;
+    border-top: 1px solid transparent;
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background .15s;
+    vertical-align: middle;
+    font-size: 12.5px;
+  }
+  tbody tr:hover td {
+    border-bottom-color: var(--border) !important;
+    border-top-color: var(--border) !important;
+  }
+
+  td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--orange-light);
+  }
+
+  /* Row number */
+  .row-num {
+    color: var(--text-muted) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    min-width: 36px;
+    text-align: center;
+  }
+
+  /* Tag-like cells for specific columns */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .tag-green { background: #22C55E1A; color: var(--accent-green); border: 1px solid #22C55E30; }
+  .tag-red   { background: #EF44441A; color: var(--accent-red);   border: 1px solid #EF444430; }
+  .tag-orange{ background: var(--orange-glow); color: var(--orange-light); border: 1px solid #F05A0030; }
+  .tag-gray  { background: #E8EBF3; color: var(--text-muted); border: 1px solid #D4D8E8; }
+
+  /* ── LOADER ──────────────────────────────────────────────── */
+  #loader {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 320px; gap: 20px;
+  }
+  .spinner {
+    width: 42px; height: 42px;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loader p { color: var(--text-muted); font-size: 13px; }
+
+  /* ── EMPTY / ERROR STATE ─────────────────────────────────── */
+  #empty-state, #error-state {
+    display: none; text-align: center; padding: 60px 20px;
+  }
+  #empty-state svg, #error-state svg { width: 48px; height: 48px; margin-bottom: 14px; opacity: .4; }
+  #empty-state p, #error-state p { color: var(--text-muted); font-size: 14px; }
+  #error-state p { color: #EF4444; }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    flex-shrink: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 28px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--text-muted);
+  }
+  footer .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 6px var(--accent-green);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+  /* ── SCROLLBAR ───────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width:600px) {
+    header { padding: 12px 16px; }
+    .toolbar { padding: 10px 16px; }
+    .table-wrapper { margin: 10px 10px 10px; }
+    .stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ═════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="login-logo-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 20V8l6 4V8l6 4V4l8 4v12H2zm2-2h16V9.9l-6-3v4.1l-6-4.1v4.1l-4-2.7V18z"/>
+        </svg>
+      </div>
+      <div class="login-logo-text">
+        <h2>Projects Dashboard</h2>
+        <p>Powered by Google Sheets</p>
+      </div>
+    </div>
+
+    <div class="login-title">Welcome back 👋</div>
+    <div class="login-sub">Sign in to access the Projects Dashboard</div>
+
+    <div class="login-error" id="login-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+      </svg>
+      <span id="login-error-msg">Invalid ID or password.</span>
+    </div>
+
+    <div class="login-field">
+      <label>User ID</label>
+      <div class="login-input-wrap">
+        <input type="text" id="login-id" placeholder="Enter your user ID" autocomplete="username"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="login-field">
+      <label>Password</label>
+      <div class="login-input-wrap">
+        <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <button class="eye-btn" id="eye-btn" type="button" title="Show/hide password">
+          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="login-btn" id="login-btn">
+      <div class="btn-spinner"></div>
+      <span class="btn-label">Sign In →</span>
+    </button>
+
+    <div class="login-footer">Protected · Only authorised users may access this dashboard</div>
+  </div>
+</div>
+
+<div class="app-shell" id="app-shell" style="display:none">
+
+<!-- ══ HEADER ══════════════════════════════════════════════ -->
+<header>
+  <div class="logo-mark">
+    <!-- Factory / Production icon -->
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 20V8l6 4V8l6 4V4l8 4v12H2zm2-2h16V9.9l-6-3v4.1l-6-4.1v4.1l-4-2.7V18z"/>
+    </svg>
+  </div>
+  <div class="brand">
+    <h1>Projects Dashboard</h1>
+    <p>Live data from Google Sheets · Projects</p>
+  </div>
+  <div class="header-right">
+    <div class="user-chip" id="user-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span id="user-name-display">User</span>
+    </div>
+    <span class="badge" id="last-updated">Loading…</span>
+    <button id="refresh-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M1 4v6h6M23 20v-6h-6"/>
+        <path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/>
+      </svg>
+      Refresh
+    </button>
+    <button id="logout-btn" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+      </svg>
+      Logout
+    </button>
+  </div>
+</header>
+
+<!-- ══ TOOLBAR ═════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="text" id="search-input" placeholder="Search across all columns…"/>
+  </div>
+  <div class="col-filter">
+    <label>Column:</label>
+    <select id="col-select"><option value="">All columns</option></select>
+  </div>
+  <div class="stats">
+    <div class="stat-pill"><strong id="stat-total">—</strong> &nbsp;Total Rows</div>
+    <div class="stat-pill"><strong id="stat-filtered">—</strong> &nbsp;Showing</div>
+    <div class="stat-pill"><strong id="stat-cols">—</strong> &nbsp;Columns</div>
+  </div>
+</div>
+
+<!-- ══ TABLE AREA ═══════════════════════════════════════════ -->
+<div class="table-wrapper" id="table-area">
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Fetching data from Google Sheets…</p>
+  </div>
+  <div id="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/>
+    </svg>
+    <p>No matching records found.</p>
+  </div>
+  <div id="error-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <p id="error-msg">Something went wrong.</p>
+  </div>
+  <table id="data-table" style="display:none">
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════ -->
+<footer>
+  <div class="dot"></div>
+  <span>Connected to Google Sheets</span>
+  <span style="margin-left:auto;opacity:.5">Projects Dashboard v2.0</span>
+</footer>
+
+</div><!-- /.app-shell -->
+
+<!-- ══ SCRIPT ══════════════════════════════════════════════ -->
+<script>
+// ══════════════════════════════════════════════════════════════
+//  LOGIN LOGIC
+// ══════════════════════════════════════════════════════════════
+
+// Demo users — in production these come from Apps Script / Google Sheet "Users"
+// { id, password, name }
+const DEMO_USERS = [
+  { id: "admin",   password: "admin123",  name: "Admin" },
+  { id: "tushar",  password: "tushar@123",name: "Tushar" },
+  { id: "mrm",     password: "mrm@2025",  name: "MRM Supervisor" },
+];
+
+let currentUser = null;
+
+const loginScreen  = document.getElementById("login-screen");
+const appShell     = document.getElementById("app-shell");
+const loginIdEl    = document.getElementById("login-id");
+const loginPassEl  = document.getElementById("login-pass");
+const loginBtn     = document.getElementById("login-btn");
+const loginError   = document.getElementById("login-error");
+const loginErrMsg  = document.getElementById("login-error-msg");
+const eyeBtn       = document.getElementById("eye-btn");
+const eyeIcon      = document.getElementById("eye-icon");
+
+// Toggle password visibility
+eyeBtn.addEventListener("click", () => {
+  const isPass = loginPassEl.type === "password";
+  loginPassEl.type = isPass ? "text" : "password";
+  eyeIcon.innerHTML = isPass
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+});
+
+// Allow Enter key to submit
+[loginIdEl, loginPassEl].forEach(el =>
+  el.addEventListener("keydown", e => { if (e.key === "Enter") attemptLogin(); })
+);
+loginBtn.addEventListener("click", attemptLogin);
+
+function showLoginError(msg) {
+  loginErrMsg.textContent = msg;
+  loginError.classList.remove("show");
+  void loginError.offsetWidth; // reflow to re-trigger shake
+  loginError.classList.add("show");
+}
+
+function attemptLogin() {
+  const id   = loginIdEl.value.trim();
+  const pass = loginPassEl.value;
+
+  if (!id || !pass) {
+    showLoginError("Please enter both User ID and password.");
+    return;
+  }
+
+  // Show spinner
+  loginBtn.classList.add("loading");
+  loginBtn.disabled = true;
+  loginError.classList.remove("show");
+
+  // In production, call Apps Script to verify
+  if (typeof google !== "undefined" && google.script) {
+    google.script.run
+      .withSuccessHandler(result => {
+        loginBtn.classList.remove("loading");
+        loginBtn.disabled = false;
+        if (result.success) {
+          onLoginSuccess(result.name || id);
+        } else {
+          showLoginError(result.error || "Invalid ID or password.");
+          loginPassEl.value = "";
+          loginPassEl.focus();
+        }
+      })
+      .withFailureHandler(err => {
+        loginBtn.classList.remove("loading");
+        loginBtn.disabled = false;
+        showLoginError("Connection error. Please try again.");
+      })
+      .verifyLogin(id, pass);
+  } else {
+    // DEMO MODE
+    setTimeout(() => {
+      loginBtn.classList.remove("loading");
+      loginBtn.disabled = false;
+      const user = DEMO_USERS.find(
+        u => u.id.toLowerCase() === id.toLowerCase() && u.password === pass
+      );
+      if (user) {
+        onLoginSuccess(user.name);
+      } else {
+        showLoginError("Invalid User ID or password. Please try again.");
+        loginPassEl.value = "";
+        loginPassEl.focus();
+      }
+    }, 800);
+  }
+}
+
+function onLoginSuccess(name) {
+  currentUser = name;
+  document.getElementById("user-name-display").textContent = name;
+  loginScreen.classList.add("hide");
+  setTimeout(() => {
+    loginScreen.style.display = "none";
+    appShell.style.display = "flex";
+    loadData();
+  }, 420);
+}
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  appShell.style.display = "none";
+  loginScreen.style.display = "flex";
+  loginScreen.classList.remove("hide");
+  loginIdEl.value = "";
+  loginPassEl.value = "";
+  loginError.classList.remove("show");
+  currentUser = null;
+  // reset table state
+  allHeaders = []; allRows = [];
+  sortCol = -1; sortDir = 1;
+  document.getElementById("tbody").innerHTML = "";
+  document.getElementById("data-table").style.display = "none";
+  document.getElementById("loader").style.display = "flex";
+  loginIdEl.focus();
+});
+
+// Focus first input on load
+loginIdEl.focus();
+
+
+// ══════════════════════════════════════════════════════════════
+//  DASHBOARD LOGIC
+// ══════════════════════════════════════════════════════════════
+
+let allHeaders = [];
+let allRows    = [];
+let sortCol    = -1;
+let sortDir    = 1;
+
+const DATE_COLS  = [4,5,6,8];
+const SCORE_COLS = ["Qty Score","QA Value","Finishing Value","QC Values","Planned Value","Actual Produced Value","FG Received Value"];
+const REMARK_COL = "Remark";
+const BOOL_COLS  = ["Post Curing Required ?"];
+
+function cellTag(header, value) {
+  if (!value && value !== 0) return '<span style="color:#C4C9D9">—</span>';
+  const v = String(value);
+  const vu = v.toUpperCase();
+  if (BOOL_COLS.includes(header)) {
+    return `<span class="tag ${(vu==="YES"||vu==="Y")?"tag-green":"tag-gray"}">${v}</span>`;
+  }
+  if (header === REMARK_COL) {
+    return v ? `<span class="tag tag-orange">${v}</span>` : '<span style="color:#C4C9D9">—</span>';
+  }
+  if (SCORE_COLS.includes(header)) {
+    const n = parseFloat(v.replace(/,/g,""));
+    if (!isNaN(n)) {
+      return `<span class="tag ${n>0?"tag-green":n<0?"tag-red":"tag-gray"}">${v}</span>`;
+    }
+  }
+  return `<span title="${v}">${v}</span>`;
+}
+
+function renderTable(headers, rows) {
+  const sel = document.getElementById("col-select");
+  sel.innerHTML = '<option value="">All columns</option>';
+  headers.forEach((h,i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = h || `Col ${i+1}`;
+    sel.appendChild(o);
+  });
+  const thead = document.getElementById("thead");
+  let thHTML = '<tr><th class="row-num" style="cursor:default">#</th>';
+  headers.forEach((h,i) => {
+    thHTML += `<th data-col="${i}">${h||`Col ${i+1}`}<span class="sort-icon">⇅</span></th>`;
+  });
+  thead.innerHTML = thHTML + "</tr>";
+  thead.querySelectorAll("th[data-col]").forEach(th => {
+    th.addEventListener("click", () => {
+      const c = parseInt(th.dataset.col);
+      sortCol === c ? (sortDir *= -1) : (sortCol = c, sortDir = 1);
+      applyFilterSort();
+    });
+  });
+  applyFilterSort();
+}
+
+function applyFilterSort() {
+  const q      = document.getElementById("search-input").value.toLowerCase().trim();
+  const colIdx = document.getElementById("col-select").value;
+  let filtered = allRows.filter(row => {
+    if (!q) return true;
+    if (colIdx !== "") return String(row[colIdx]||"").toLowerCase().includes(q);
+    return row.some(cell => String(cell||"").toLowerCase().includes(q));
+  });
+  if (sortCol >= 0) {
+    filtered = [...filtered].sort((a,b) => {
+      const av=a[sortCol]??"", bv=b[sortCol]??"";
+      const an=parseFloat(String(av).replace(/,/g,"")), bn=parseFloat(String(bv).replace(/,/g,""));
+      if (!isNaN(an)&&!isNaN(bn)) return sortDir*(an-bn);
+      return sortDir*String(av).localeCompare(String(bv),undefined,{numeric:true});
+    });
+  }
+  document.querySelectorAll("th[data-col]").forEach(th => {
+    th.classList.remove("sorted-asc","sorted-desc");
+    const si = th.querySelector(".sort-icon");
+    const c  = parseInt(th.dataset.col);
+    if (c===sortCol) {
+      th.classList.add(sortDir===1?"sorted-asc":"sorted-desc");
+      si.textContent = sortDir===1?"↑":"↓";
+    } else { si.textContent="⇅"; }
+  });
+  const tbody = document.getElementById("tbody");
+  if (filtered.length===0) {
+    tbody.innerHTML="";
+    document.getElementById("data-table").style.display="none";
+    document.getElementById("empty-state").style.display="block";
+  } else {
+    document.getElementById("data-table").style.display="";
+    document.getElementById("empty-state").style.display="none";
+    let html="";
+    filtered.forEach((row,ri) => {
+      html+=`<tr><td class="row-num">${ri+1}</td>`;
+      allHeaders.forEach((h,ci) => { html+=`<td>${cellTag(h,row[ci]??"")}</td>`; });
+      html+=`</tr>`;
+    });
+    tbody.innerHTML=html;
+  }
+  document.getElementById("stat-total").textContent    = allRows.length.toLocaleString();
+  document.getElementById("stat-filtered").textContent = filtered.length.toLocaleString();
+  document.getElementById("stat-cols").textContent     = allHeaders.length.toLocaleString();
+}
+
+function loadData() {
+  document.getElementById("loader").style.display      = "flex";
+  document.getElementById("data-table").style.display  = "none";
+  document.getElementById("empty-state").style.display = "none";
+  document.getElementById("error-state").style.display = "none";
+  document.getElementById("last-updated").textContent  = "Loading…";
+  if (typeof google !== "undefined" && google.script) {
+    google.script.run.withSuccessHandler(onData).withFailureHandler(onError).getData();
+  } else {
+    setTimeout(() => onData(getDemoData()), 900);
+  }
+}
+
+function onData(result) {
+  document.getElementById("loader").style.display = "none";
+  if (!result||!result.success) { onError(result?result.error:"Unknown error"); return; }
+  allHeaders = result.headers; allRows = result.rows;
+  document.getElementById("data-table").style.display = "";
+  document.getElementById("last-updated").textContent = "Updated "+new Date().toLocaleTimeString();
+  renderTable(allHeaders, allRows);
+}
+
+function onError(err) {
+  document.getElementById("loader").style.display      = "none";
+  document.getElementById("error-state").style.display = "block";
+  document.getElementById("error-msg").textContent     = "Error: "+(err||"Failed to load data.");
+}
+
+document.getElementById("search-input").addEventListener("input",  applyFilterSort);
+document.getElementById("col-select").addEventListener("change", applyFilterSort);
+document.getElementById("refresh-btn").addEventListener("click",  loadData);
+
+function getDemoData() {
+  const headers = [
+    "RC","WO NO","Week No","Item","Planned Start Date","Actual Start Date",
+    "Planned Route card End Date","Age","Route Card End Date","Planned Qty","Good Qty",
+    "Planned Cons","Actual Cons","Start (MRM)","End(Tushar)","Qty Score","Okay Weight",
+    "Remark","Weight to issue/day (KG)","Planned Shots","Actual Shots","Finishing",
+    "MOULD NAME","Machine No","No. of Cavity","QA","Formulation Code","LOS",
+    "Input Wt. (g)","L","Rejection qty calculated","Code","Unique Key","Moulding Supervisor",
+    "Finishing Supervisor","Inspection Supervisor","Ordered Qty","Route Card OK Qty Weight",
+    "Post Curing Required ?","Merged Doc ID","Actual Produced","Actual Rejection",
+    "Fg recived data","Rate","Fg Recived Qty","Diffirent","HRL Part Code","Inspection Qty",
+    "Actual Produced Value","Planned Value","FG Received Value","QA Value","Finishing Value","QC Values"
+  ];
+  const rows = [
+    ["RC001","WO-1001","W12","Part A","01-Jan-2025","02-Jan-2025","15-Jan-2025","14","14-Jan-2025","500","490","1200","1180","A","T","95","245","OK","175","600","588","Done","MOULD-A","M01","4","Pass","FC-001","LOS1","50","30","10","C001","UK001","Sup1","FinSup1","InsSup1","500","245","Yes","DOC001","490","10","Y","120","490","0","HRL001","490","58800","60000","58800","58800","58800","58800"],
+    ["RC002","WO-1002","W12","Part B","03-Jan-2025","03-Jan-2025","16-Jan-2025","13","16-Jan-2025","300","280","800","820","B","T","-20","140","Delay","140","360","340","Pending","MOULD-B","M02","2","Fail","FC-002","LOS2","48","28","20","C002","UK002","Sup2","FinSup2","InsSup2","300","140","No","DOC002","280","20","N","110","280","-20","HRL002","280","30800","33000","30800","30800","30800","30800"],
+    ["RC003","WO-1003","W13","Part C","05-Jan-2025","06-Jan-2025","18-Jan-2025","12","18-Jan-2025","750","740","1800","1760","C","T","0","370","","185","900","885","Done","MOULD-C","M03","6","Pass","FC-003","LOS3","52","32","10","C003","UK003","Sup3","FinSup3","InsSup3","750","370","Yes","DOC003","740","10","Y","130","740","0","HRL003","740","96200","97500","96200","96200","96200","96200"],
+    ["RC004","WO-1004","W13","Part D","07-Jan-2025","08-Jan-2025","20-Jan-2025","11","19-Jan-2025","400","395","1000","980","D","T","5","197","","175","480","475","Done","MOULD-D","M04","4","Pass","FC-004","LOS1","49","29","5","C004","UK004","Sup4","FinSup4","InsSup4","400","197","No","DOC004","395","5","Y","125","395","0","HRL004","395","49375","50000","49375","49375","49375","49375"],
+    ["RC005","WO-1005","W14","Part E","10-Jan-2025","10-Jan-2025","22-Jan-2025","10","22-Jan-2025","600","580","1500","1490","E","T","-20","290","Rework","170","720","698","In Progress","MOULD-E","M05","4","Hold","FC-005","LOS2","51","31","20","C005","UK005","Sup5","FinSup5","InsSup5","600","290","Yes","DOC005","580","20","N","115","580","-20","HRL005","580","66700","69000","66700","66700","66700","66700"],
+  ];
+  return { success: true, headers, rows };
+}
+</script>
+</body>
+</html>
